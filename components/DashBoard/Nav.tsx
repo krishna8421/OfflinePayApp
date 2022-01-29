@@ -1,10 +1,12 @@
 import React, {useEffect} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
-import {Image, Icon} from 'react-native-elements';
+import {Image} from 'react-native-elements';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNRestart from 'react-native-restart';
 import NetInfo from '@react-native-community/netinfo';
 import {useState} from 'react';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+AntDesign.loadFont().then();
 
 export default function Nav() {
   const [isConnectedToNet, setIsConnectedToNet] = useState<boolean | null>(
@@ -45,14 +47,7 @@ export default function Nav() {
           </View>
         )}
       </View>
-      <Icon
-        type="antdesign"
-        name="logout"
-        onPress={logout}
-        color="red"
-        //IDK????
-        tvParallaxProperties
-      />
+      <AntDesign name="logout" onPress={logout} color="red" size={24} />
     </View>
   );
 }

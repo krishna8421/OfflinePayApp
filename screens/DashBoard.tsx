@@ -5,13 +5,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useState} from 'react';
 import Transfer from '../components/DashBoard/Transfer';
 import Logs from '../components/DashBoard/Logs';
-import {Overlay, Button, Icon} from 'react-native-elements';
+import {Overlay} from 'react-native-elements';
 import {TouchableWithoutFeedback} from 'react-native';
 import {useEffect} from 'react';
 import NetInfo from '@react-native-community/netinfo';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {reFetch} from '../utils/reFetch';
 import RNRestart from 'react-native-restart';
+import Entypo from 'react-native-vector-icons/Entypo';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+Entypo.loadFont().then();
+FontAwesome.loadFont().then();
 
 type Props = {
   name: string;
@@ -119,47 +123,31 @@ export default function DashBoard({name}: Props) {
           onBackdropPress={toggleLogOverlay}
           overlayStyle={styles.overlayLayoutLogs}>
           <Logs logs={logs} />
-          <Icon
-            type="entypo"
+          <Entypo
             name="circle-with-cross"
             onPress={toggleLogOverlay}
             color="black"
             size={50}
             style={styles.closeLogs}
-            //IDK????
-            tvParallaxProperties
           />
         </Overlay>
       </View>
-      <Button
-        onPress={async () => {
-          if (isConnectedToNet) {
-            await sync();
-            RNRestart.Restart();
-          } else {
-            // @ts-ignore
-            alert('Please connect to internet');
-          }
-        }}
-        icon={{
-          name: 'refresh',
-          type: 'font-awesome',
-          size: 30,
-          color: 'white',
-        }}
-        iconContainerStyle={{marginRight: 6, marginVertical: 5}}
-        buttonStyle={{
-          backgroundColor: 'rgba(251, 113, 15, 0.8)',
-          borderColor: 'transparent',
-          borderRadius: 30,
-          padding: 5,
-        }}
-        containerStyle={{
-          position: 'absolute',
-          bottom: 60,
-          right: 40,
-        }}
-      />
+      <View style={styles.refreshButtonView}>
+        <FontAwesome
+          onPress={async () => {
+            if (isConnectedToNet) {
+              await sync();
+              RNRestart.Restart();
+            } else {
+              // @ts-ignore
+              alert('Please connect to internet');
+            }
+          }}
+          name="refresh"
+          color="white"
+          size={30}
+        />
+      </View>
       <StatusBar />
     </SafeAreaProvider>
   );
@@ -254,4 +242,14 @@ const styles = StyleSheet.create({
     bottom: 0,
     textAlign: 'center',
   },
+  refreshButtonView: {
+    position: 'absolute',
+    bottom: 60,
+    right: 40,
+    backgroundColor: 'rgba(251, 113, 15, 0.8)',
+    borderColor: 'transparent',
+    borderRadius: 30,
+    padding: 10,
+  },
+  refreshButton: {},
 });

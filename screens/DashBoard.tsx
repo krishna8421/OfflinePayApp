@@ -11,6 +11,10 @@ import {useEffect} from 'react';
 import NetInfo from '@react-native-community/netinfo';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {reFetch} from '../utils/reFetch';
+import moment from 'moment';
+import axios from 'axios';
+//@ts-ignore
+import SmsAndroid from 'react-native-get-sms-android';
 import RNRestart from 'react-native-restart';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -26,10 +30,12 @@ export default function DashBoard({name}: Props) {
   const [showLogMenu, setShowLogMenu] = useState<boolean>(false);
   const [balance, setBalance] = useState<number>(0);
   const [logs, setLogs] = useState<string[]>([]);
+  const [lastMsgTime, setLastMsgTime] = useState<number>(0);
   const [isConnectedToNet, setIsConnectedToNet] = useState<boolean | null>(
     true,
   );
   const sleep = (ms = 1000) => new Promise(r => setTimeout(r, ms));
+
   const sync = async () => {
     const token = await AsyncStorage.getItem('@jwt_token');
     await sleep();
@@ -41,6 +47,120 @@ export default function DashBoard({name}: Props) {
     await AsyncStorage.setItem('@current_balance', JSON.stringify(balance));
     await AsyncStorage.setItem('@logs', JSON.stringify(logs));
   };
+
+  // Sync when internet in connected
+  type TransferForm = {
+    num: string;
+    amount: string;
+    num_to: string;
+  };
+  useEffect(() => {
+    setLastMsgTime(Date.now());
+  }, []);
+  useEffect(() => {
+    const transfer = async ({num_to, num, amount}: TransferForm) => {
+      const sessionToken = await AsyncStorage.getItem('@jwt_token');
+      if (!sessionToken) {
+        throw new Error('No session token');
+      }
+      await axios.post(
+        'https://offline-pay.vercel.app/api/transfer',
+        {
+          num_from: num,
+          num_to,
+          amount,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${sessionToken}`,
+          },
+        },
+      );
+      const refetchData = await reFetch(sessionToken);
+      const {logs, balance} = refetchData;
+      await AsyncStorage.setItem('@current_balance', JSON.stringify(balance));
+      await AsyncStorage.setItem('@logs', JSON.stringify(logs));
+    };
+
+    const syncOnline = async () => {
+      const toSyncItemString = await AsyncStorage.getItem('@to_sync');
+      if (isConnectedToNet && toSyncItemString) {
+        const toSyncItem = JSON.parse(toSyncItemString);
+        toSyncItem.map(async (data: TransferForm) => {
+          await transfer(data);
+        });
+        await AsyncStorage.setItem('@to_sync', '');
+        RNRestart.Restart();
+      }
+    };
+    syncOnline();
+  }, [isConnectedToNet]);
+
+  // const dateObject = moment(1643632401000).isAfter(164363240000); // true
+
+  useEffect(() => {
+    const getSMS = () => {
+      sleep(4000);
+      let filter = {
+        box: 'inbox',
+        body: '',
+        indexFrom: 0,
+        maxCount: 1,
+      };
+      SmsAndroid.list(
+        JSON.stringify(filter),
+        //@ts-ignore
+        fail => {
+          console.error('Failed with this error: ' + fail);
+        },
+        //@ts-ignore
+        async (_, smsList) => {
+          const arr = JSON.parse(smsList);
+          const middleBody = arr[0].body.split('.')[0].split('has ')[1];
+          const msgSendTime: number = arr[0].date_sent;
+
+          if (middleBody !== 'sent you Rs') {
+            return;
+          }
+          if (moment(lastMsgTime).isSameOrAfter(msgSendTime)) {
+            return;
+          }
+          setLastMsgTime(msgSendTime);
+
+          const numFromStr = arr[0].body.split(' ')[0];
+          const numFrom = parseInt(numFromStr, 10);
+          const amountStr = arr[0].body.split('.')[1];
+          const amount = parseInt(amountStr, 10);
+          const localBalString = await AsyncStorage.getItem('@current_balance');
+          if (!localBalString) {
+            return;
+          }
+          let logsArrStr = await AsyncStorage.getItem('@logs');
+          let logsArr;
+          if (!logsArrStr) {
+            logsArrStr = '[]';
+          }
+          logsArr = JSON.parse(logsArrStr);
+          logsArr.push(
+            `[${moment().format(
+              'Do MMM YYYY, h:mm a',
+            )}] Received Rs.${amount} from +91${numFrom}`,
+          );
+          const localBal = parseInt(localBalString, 10);
+          const newAmount = localBal + amount;
+          await AsyncStorage.setItem('@logs', JSON.stringify(logsArr));
+          await AsyncStorage.setItem(
+            '@current_balance',
+            JSON.stringify(newAmount),
+          );
+          RNRestart.Restart();
+        },
+      );
+    };
+    if (!isConnectedToNet) {
+      getSMS();
+    }
+  }, [isConnectedToNet, lastMsgTime]);
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
@@ -77,7 +197,7 @@ export default function DashBoard({name}: Props) {
   };
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider style={{backgroundColor: 'white'}}>
       <View style={styles.DashBoardView}>
         <Nav />
         <Text style={styles.welcomeTxt}>Welcome,</Text>
@@ -137,6 +257,7 @@ export default function DashBoard({name}: Props) {
           onPress={async () => {
             if (isConnectedToNet) {
               await sync();
+              // await AsyncStorage.setItem('@to_sync', '');
               RNRestart.Restart();
             } else {
               // @ts-ignore
@@ -148,7 +269,7 @@ export default function DashBoard({name}: Props) {
           size={30}
         />
       </View>
-      <StatusBar />
+      <StatusBar backgroundColor="rgba(0, 209, 111, 0.85)" />
     </SafeAreaProvider>
   );
 }
@@ -156,19 +277,21 @@ export default function DashBoard({name}: Props) {
 const styles = StyleSheet.create({
   DashBoardView: {
     width: '100%',
-    marginTop: 10,
+    paddingTop: 0,
   },
   welcomeTxt: {
     fontSize: 30,
     fontWeight: '100',
     paddingHorizontal: 25,
-    marginTop: 20,
+    marginTop: 15,
+    color: 'black',
   },
   nameTxt: {
     fontSize: 47,
     fontWeight: '300',
     paddingHorizontal: 25,
     marginTop: 10,
+    color: 'black',
   },
   currentBalance: {
     width: '90%',
@@ -250,6 +373,11 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     borderRadius: 30,
     padding: 10,
+    paddingHorizontal: 13,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.8,
+    shadowRadius: 1,
   },
-  refreshButton: {},
 });

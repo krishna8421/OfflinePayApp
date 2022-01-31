@@ -181,16 +181,19 @@ const styles = StyleSheet.create({
     fontWeight: '200',
     marginTop: 60,
     marginBottom: 70,
+    color: 'black',
   },
   loginRegTextBox: {
     height: '90%',
     width: '65%',
+    color: 'black',
   },
   loginRegText: {
     marginTop: 30,
     fontSize: 19,
     fontWeight: '300',
     bottom: 0,
+    color: 'black',
   },
   backendErrText: {
     fontSize: 15,

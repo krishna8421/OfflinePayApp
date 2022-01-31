@@ -56,7 +56,8 @@ const styles = StyleSheet.create({
   NavView: {
     width: '100%',
     height: 60,
-    marginTop: 40,
+    marginTop: 20,
+    marginBottom: 20,
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     alignItems: 'center',

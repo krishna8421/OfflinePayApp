@@ -73,7 +73,7 @@ export default function App() {
         <View style={styles.container}>
           <Auth />
         </View>
-        <StatusBar />
+        <StatusBar backgroundColor="rgba(0, 209, 111, 0.85)" />
       </SafeAreaProvider>
     );
   }
@@ -83,7 +83,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 100,
+    paddingTop: 100,
     backgroundColor: '#fff',
     alignItems: 'center',
   },

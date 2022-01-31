@@ -11,6 +11,8 @@ import {Button, Input} from 'react-native-elements';
 import RNRestart from 'react-native-restart';
 import {reFetch} from '../../utils/reFetch';
 import moment from 'moment';
+//@ts-ignore
+import SmsAndroid from 'react-native-get-sms-android';
 
 interface Props {
   closeTransfer: () => void;
@@ -88,9 +90,30 @@ export default function Transfer({closeTransfer}: Props) {
       const newAmount = localBal - amount;
       await AsyncStorage.setItem('@current_balance', JSON.stringify(newAmount));
       await AsyncStorage.setItem('@to_sync', JSON.stringify(toSyncArr));
+      await AsyncStorage.setItem('@logs', JSON.stringify(logsArr));
 
       // SMS Logic
+      SmsAndroid.autoSend(
+        // `+91${num_to}`,
+        '+918581836519',
+        `${num} has sent you Rs.${amount}`,
+        //@ts-ignore
+        fail => {
+          setError({
+            status: true,
+            message: `Failed with this error: ${fail}`,
+          });
+        },
+        //@ts-ignore
+        success => {
+          setError({
+            status: false,
+            message: `SMS ${success} successfully`,
+          });
+        },
+      );
 
+      RNRestart.Restart();
       return;
     }
 
@@ -227,6 +250,7 @@ const styles = StyleSheet.create({
     marginVertical: 15,
   },
   Heading: {
+    color: 'black',
     fontSize: 25,
     fontWeight: '300',
   },

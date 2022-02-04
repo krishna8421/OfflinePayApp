@@ -18,6 +18,8 @@ import SmsAndroid from 'react-native-get-sms-android';
 import RNRestart from 'react-native-restart';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import {URL} from "../utils/constants"
+
 Entypo.loadFont().then();
 FontAwesome.loadFont().then();
 
@@ -64,7 +66,7 @@ export default function DashBoard({name}: Props) {
         throw new Error('No session token');
       }
       await axios.post(
-        'https://offline-pay.vercel.app/api/transfer',
+        `${URL}/api/transfer`,
         {
           num_from: num,
           num_to,
@@ -96,7 +98,6 @@ export default function DashBoard({name}: Props) {
     syncOnline();
   }, [isConnectedToNet]);
 
-  // const dateObject = moment(1643632401000).isAfter(164363240000); // true
 
   useEffect(() => {
     const getSMS = () => {

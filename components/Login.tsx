@@ -8,6 +8,10 @@ import {Formik} from 'formik';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNRestart from 'react-native-restart';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {URL} from "../utils/constants"
+
+console.log(URL);
+
 
 export default function Login({setLogin}: any) {
   const [show, setShow] = useState(false);
@@ -22,7 +26,7 @@ export default function Login({setLogin}: any) {
   };
   const loginUser = async (data: LoginData) => {
     const res = await axios.post(
-      'https://offline-pay.vercel.app/api/login',
+      `${URL}/api/login`,
       data,
     );
     if (res.data.status === 'error') {
@@ -40,7 +44,7 @@ export default function Login({setLogin}: any) {
 
       const sessionToken = await AsyncStorage.getItem('@jwt_token');
       const resLog = await axios.get(
-        'https://offline-pay.vercel.app/api/data',
+        `${URL}/api/data`,
         {
           headers: {
             'Content-Type': 'application/json',

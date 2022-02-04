@@ -1,4 +1,4 @@
-import {StyleSheet, View, Text, StatusBar} from 'react-native';
+import {PermissionsAndroid,Platform,StyleSheet, View, Text, StatusBar} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Auth from './screens/Auth';
 import React, {useState, useEffect} from 'react';
@@ -15,6 +15,19 @@ export default function App() {
   const [isConnectedToNet, setIsConnectedToNet] = useState<boolean | null>(
     true,
   );
+
+  // const permission =()=>{
+  //   PermissionsAndroid.request(
+  //     PermissionsAndroid.PERMISSIONS.SEND_SMS,
+  //     PermissionsAndroid.PERMISSIONS.RECEIVE_SMS,
+  //     PermissionsAndroid.PERMISSIONS.READ_SMS
+  //   )
+  //  }
+
+  //  useEffect(()=>{
+  //    if(Platform.OS === 'ios') return;
+  //    permission()
+  //    },[])
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
@@ -40,8 +53,6 @@ export default function App() {
     };
     checkAuth();
   }, []);
-
-  useEffect(() => {}, [isLogin]);
 
   if (!isLogin && !isConnectedToNet) {
     return (

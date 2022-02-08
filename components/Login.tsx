@@ -8,10 +8,7 @@ import {Formik} from 'formik';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNRestart from 'react-native-restart';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {URL} from "../utils/constants"
-
-console.log(URL);
-
+import {URL} from '../utils/constants';
 
 export default function Login({setLogin}: any) {
   const [show, setShow] = useState(false);
@@ -25,10 +22,7 @@ export default function Login({setLogin}: any) {
     num: number;
   };
   const loginUser = async (data: LoginData) => {
-    const res = await axios.post(
-      `${URL}/api/login`,
-      data,
-    );
+    const res = await axios.post(`${URL}/api/login`, data);
     if (res.data.status === 'error') {
       setError({
         status: true,
@@ -43,15 +37,12 @@ export default function Login({setLogin}: any) {
       await AsyncStorage.setItem('@jwt_token', res.data.token);
 
       const sessionToken = await AsyncStorage.getItem('@jwt_token');
-      const resLog = await axios.get(
-        `${URL}/api/data`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${sessionToken}`,
-          },
+      const resLog = await axios.get(`${URL}/api/data`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionToken}`,
         },
-      );
+      });
       const {logs, balance} = resLog.data;
       await AsyncStorage.setItem('@current_balance', JSON.stringify(balance));
       await AsyncStorage.setItem('@logs', JSON.stringify(logs));

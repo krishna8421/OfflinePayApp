@@ -18,7 +18,7 @@ import SmsAndroid from 'react-native-get-sms-android';
 import RNRestart from 'react-native-restart';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import {URL} from "../utils/constants"
+import {URL} from '../utils/constants';
 
 Entypo.loadFont().then();
 FontAwesome.loadFont().then();
@@ -97,7 +97,6 @@ export default function DashBoard({name}: Props) {
     };
     syncOnline();
   }, [isConnectedToNet]);
-
 
   useEffect(() => {
     const getSMS = () => {

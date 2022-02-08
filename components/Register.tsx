@@ -8,7 +8,7 @@ import {Formik} from 'formik';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNRestart from 'react-native-restart';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {URL} from "../utils/constants"
+import {URL} from '../utils/constants';
 
 export default function Register({setLogin}: any) {
   const [show, setShow] = useState(false);
@@ -23,10 +23,7 @@ export default function Register({setLogin}: any) {
     num: number;
   };
   const registerUser = async (data: RegisterData) => {
-    const res = await axios.post(
-      `${URL}/api/register`,
-      data,
-    );
+    const res = await axios.post(`${URL}/api/register`, data);
 
     if (res.data.status === 'error') {
       setError({

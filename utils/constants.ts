@@ -1,1 +1,1 @@
-export const URL = "https://offline-pay.vercel.app"
+export const URL = 'https://offline-pay.vercel.app';

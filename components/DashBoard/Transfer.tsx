@@ -10,7 +10,7 @@ import {Formik} from 'formik';
 import {Button, Input} from 'react-native-elements';
 import RNRestart from 'react-native-restart';
 import {reFetch} from '../../utils/reFetch';
-import {URL} from "../../utils/constants"
+import {URL} from '../../utils/constants';
 import moment from 'moment';
 //@ts-ignore
 import SmsAndroid from 'react-native-get-sms-android';
@@ -112,7 +112,7 @@ export default function Transfer({closeTransfer}: Props) {
           });
         },
       );
-    
+
       RNRestart.Restart();
     }
 

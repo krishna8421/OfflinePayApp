@@ -1,4 +1,11 @@
-import {PermissionsAndroid,Platform,StyleSheet, View, Text, StatusBar} from 'react-native';
+import {
+  // PermissionsAndroid,
+  // Platform,
+  StyleSheet,
+  View,
+  Text,
+  StatusBar,
+} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Auth from './screens/Auth';
 import React, {useState, useEffect} from 'react';
